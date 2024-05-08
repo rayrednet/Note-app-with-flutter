@@ -132,17 +132,25 @@ class _NotesPageState extends State<NotesPage> {
 
     notes = await NotesDatabase.instance.readAllNotes();
 
+    if (showingFavorites) {
+      notes = notes.where((note) => note.isImportant).toList();
+    }
+
     setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text(
-            'Notes',
-            style: TextStyle(fontSize: 24, color: Colors.white),
-          ),
+          title: const Text('Notes',
+              style: TextStyle(fontSize: 24, color: Colors.white)),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.favorite, color: Colors.white),
+              onPressed: () {
+                showFavorites();
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.search, color: Colors.white),
               onPressed: () {
@@ -177,6 +185,7 @@ class _NotesPageState extends State<NotesPage> {
           },
         ),
       );
+
   Widget buildNotes() => StaggeredGrid.count(
       crossAxisCount: 2,
       mainAxisSpacing: 2,
@@ -201,4 +210,17 @@ class _NotesPageState extends State<NotesPage> {
           );
         },
       ));
+
+  bool showingFavorites = false;
+
+  void showFavorites() {
+    setState(() {
+      showingFavorites = !showingFavorites;
+      if (showingFavorites) {
+        notes = notes.where((note) => note.isImportant).toList();
+      } else {
+        refreshNotes();
+      }
+    });
+  }
 }
