@@ -41,25 +41,43 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     rating = widget.note?.rating ?? 0.0;
   }
 
-  Future<void> pickMedia(ImageSource source) async {
-    try {
-      final pickedFile = await _picker.pickImage(
-        source: source,
-        maxWidth: 1800,
-        maxHeight: 1800,
-        imageQuality: 88,
-        preferredCameraDevice: CameraDevice.rear,
-      );
+  Future<void> pickMedia() async {
+    final source = await showModalBottomSheet<ImageSource>(
+        context: context,
+        builder: (context) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Camera'),
+                  onTap: () => Navigator.of(context).pop(ImageSource.camera),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Gallery'),
+                  onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+                ),
+              ],
+            ));
 
-      if (pickedFile != null) {
-        setState(() {
-          imagePath = pickedFile.path;
-        });
-      } else {
-        print('No image selected.');
+    if (source != null) {
+      try {
+        final pickedFile = await _picker.pickImage(
+          source: source,
+          maxWidth: 1800,
+          maxHeight: 1800,
+          imageQuality: 88,
+          preferredCameraDevice: CameraDevice.rear,
+        );
+
+        if (pickedFile != null) {
+          setState(() {
+            imagePath = pickedFile.path;
+          });
+        }
+      } catch (e) {
+        print('Failed to pick image: $e');
       }
-    } catch (e) {
-      print('Failed to pick image: $e');
     }
   }
 
@@ -85,7 +103,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
                   ),
                 ),
               ElevatedButton(
-                onPressed: () => pickMedia(ImageSource.gallery),
+                onPressed: pickMedia,
                 child: const Text('Pick Image'),
               ),
               RatingBar.builder(
