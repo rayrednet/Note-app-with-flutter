@@ -3,15 +3,16 @@ final String tableNotes = 'notes';
 class NoteFields {
   static final List<String> values = [
     /// Add all fields
-    id, isImportant, number, title, description, time
+    id, isImportant, number, title, description, time, imagePath,
   ];
 
-  static final String id = '_id';
-  static final String isImportant = 'isImportant';
-  static final String number = 'number';
-  static final String title = 'title';
-  static final String description = 'description';
-  static final String time = 'time';
+  static const String id = '_id';
+  static const String isImportant = 'isImportant';
+  static const String number = 'number';
+  static const String title = 'title';
+  static const String description = 'description';
+  static const String time = 'time';
+  static const String imagePath = 'imagePath';
 }
 
 class Note {
@@ -21,6 +22,7 @@ class Note {
   final String title;
   final String description;
   final DateTime createdTime;
+  final String? imagePath;
 
   const Note({
     this.id,
@@ -29,6 +31,7 @@ class Note {
     required this.title,
     required this.description,
     required this.createdTime,
+    this.imagePath,
   });
 
   Note copy({
@@ -38,6 +41,7 @@ class Note {
     String? title,
     String? description,
     DateTime? createdTime,
+    String? imagePath,
   }) =>
       Note(
         id: id ?? this.id,
@@ -46,6 +50,7 @@ class Note {
         title: title ?? this.title,
         description: description ?? this.description,
         createdTime: createdTime ?? this.createdTime,
+        imagePath: imagePath ?? this.imagePath,
       );
 
   static Note fromJson(Map<String, Object?> json) => Note(
@@ -55,6 +60,7 @@ class Note {
         title: json[NoteFields.title] as String,
         description: json[NoteFields.description] as String,
         createdTime: DateTime.parse(json[NoteFields.time] as String),
+        imagePath: json[NoteFields.imagePath] as String?,
       );
 
   Map<String, Object?> toJson() => {
@@ -64,5 +70,6 @@ class Note {
         NoteFields.number: number,
         NoteFields.description: description,
         NoteFields.time: createdTime.toIso8601String(),
+        NoteFields.imagePath: imagePath,
       };
 }

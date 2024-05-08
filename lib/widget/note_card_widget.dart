@@ -1,3 +1,4 @@
+import 'dart:io'; // Import Dart's IO library to handle files
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../model/note.dart';
@@ -38,6 +39,18 @@ class NoteCardWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (note.imagePath !=
+                    null) // Check if an image path is available
+                  Center(
+                    child: Image.file(
+                      File(note.imagePath!),
+                      width: double.infinity,
+                      height: 100, // You can adjust the height
+                      fit: BoxFit
+                          .cover, // Cover the area without distorting the image
+                    ),
+                  ),
+                const SizedBox(height: 8), // Spacing between the image and the text
                 Text(
                   time,
                   style: TextStyle(color: Colors.grey.shade700),
@@ -51,31 +64,24 @@ class NoteCardWidget extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                Text(
+                  note.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.black54),
+                ),
               ],
             ),
             if (note.isImportant) // Checking if the note is marked as important
-              Positioned(
-              top: 8, // Position as needed
-              right: 8,
-              child: Container(
-                decoration: const BoxDecoration(
-                  // Box shadow to create the glow effect
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white, // Glow color
-                      spreadRadius: 2, // Spread radius
-                      blurRadius: 8, // Blur radius
-                      offset: Offset(0, 0), // Shadow position
-                    ),
-                  ],
-                ),
+              const Positioned(
+                top: 8,
+                right: 8,
                 child: Icon(
-                  Icons.star,
-                  color: Colors.yellow.shade600, // Star icon is yellow
-                  size: 24, // Adjust the size as needed
+                  Icons.favorite,
+                  color: Colors.red, 
+                  size: 24, 
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -85,15 +91,15 @@ class NoteCardWidget extends StatelessWidget {
   double getMinHeight(int index) {
     switch (index % 4) {
       case 0:
-        return 100;
+        return 150; // Increased minimum height for cases with images
       case 1:
-        return 150;
+        return 200;
       case 2:
-        return 150;
+        return 200;
       case 3:
-        return 100;
+        return 150;
       default:
-        return 100;
+        return 150;
     }
   }
 }

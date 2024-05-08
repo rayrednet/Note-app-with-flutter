@@ -22,7 +22,7 @@ class NotesSearch extends SearchDelegate<Note?> {
   List<Widget>? buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
         },
@@ -33,7 +33,7 @@ class NotesSearch extends SearchDelegate<Note?> {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
       onPressed: () {
         close(context, null);
       },
@@ -58,7 +58,7 @@ class NotesSearch extends SearchDelegate<Note?> {
         return ListTile(
           title: Text(
             result.title,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors
                   .white, // Choose a color that contrasts well with the background
               fontWeight: FontWeight.bold, // Make it bold
@@ -66,11 +66,11 @@ class NotesSearch extends SearchDelegate<Note?> {
           ),
           subtitle: Text(
             result.description,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white70, // Again, ensure good contrast
             ),
           ),
-          trailing: Icon(Icons.arrow_forward_ios, color: Colors.white),
+          trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
           onTap: () {
             // Push the note detail page onto the navigation stack
             Navigator.of(context).push(MaterialPageRoute(

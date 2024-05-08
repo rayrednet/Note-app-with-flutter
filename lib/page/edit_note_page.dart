@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../db/notes_database.dart';
 import '../model/note.dart';
 import '../widget/note_form_widget.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddEditNotePage extends StatefulWidget {
   final Note? note;
@@ -21,6 +23,9 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   late int number;
   late String title;
   late String description;
+  String? imagePath;
+
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -30,30 +35,70 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
     number = widget.note?.number ?? 0;
     title = widget.note?.title ?? '';
     description = widget.note?.description ?? '';
+    imagePath = widget.note?.imagePath;
+  }
+
+  Future<void> pickMedia(ImageSource source) async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1800,
+        maxHeight: 1800,
+        imageQuality: 88,
+        preferredCameraDevice: CameraDevice.rear,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          imagePath = pickedFile.path;
+        });
+      } else {
+        print('No image selected.');
+      }
+    } catch (e) {
+      print('Failed to pick image: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.white),
-          actions: [buildButton()],
-        ),
-        body: Form(
-          key: _formKey,
-          child: NoteFormWidget(
+    appBar: AppBar(
+      iconTheme: const IconThemeData(color: Colors.white),
+      actions: [buildButton()],
+    ),
+    body: Form(
+      key: _formKey,
+      child: ListView(
+        children: [
+          if (imagePath != null)
+            Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: FileImage(File(imagePath!)),
+                ),
+              ),
+            ),
+          ElevatedButton(
+            onPressed: () => pickMedia(ImageSource.gallery),
+            child: const Text('Pick Image'),
+          ),
+          NoteFormWidget(
             isImportant: isImportant,
             number: number,
             title: title,
             description: description,
-            onChangedImportant: (isImportant) =>
-                setState(() => this.isImportant = isImportant),
+            onChangedImportant: (isImportant) => setState(() => this.isImportant = isImportant),
             onChangedNumber: (number) => setState(() => this.number = number),
             onChangedTitle: (title) => setState(() => this.title = title),
-            onChangedDescription: (description) =>
-                setState(() => this.description = description),
+            onChangedDescription: (description) => setState(() => this.description = description),
           ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 
   Widget buildButton() {
     final isFormValid = title.isNotEmpty && description.isNotEmpty;
@@ -63,7 +108,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: isFormValid ? null : Colors.grey.shade700,
+          backgroundColor: Colors.white,
         ),
         onPressed: addOrUpdateNote,
         child: const Text('Save', style: TextStyle(color: Colors.deepPurple)),
@@ -72,20 +117,23 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   }
 
   void addOrUpdateNote() async {
-    final isValid = _formKey.currentState!.validate();
+  print("Title: $title, Description: $description, ImagePath: $imagePath");
+  final isValid = _formKey.currentState!.validate();
+  print("Form validation result: $isValid");
 
-    if (isValid) {
-      final isUpdating = widget.note != null;
+  if (isValid) {
+    final isUpdating = widget.note != null;
+    print("Updating existing note: $isUpdating");
 
-      if (isUpdating) {
-        await updateNote();
-      } else {
-        await addNote();
-      }
-
-      Navigator.of(context).pop();
+    if (isUpdating) {
+      await updateNote();
+    } else {
+      await addNote();
     }
+
+    Navigator.of(context).pop();
   }
+}
 
   Future updateNote() async {
     final note = widget.note!.copy(
@@ -93,6 +141,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       number: number,
       title: title,
       description: description,
+      imagePath: imagePath,
     );
 
     await NotesDatabase.instance.update(note);
@@ -101,10 +150,11 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   Future addNote() async {
     final note = Note(
       title: title,
-      isImportant: true,
+      isImportant: isImportant,
       number: number,
       description: description,
       createdTime: DateTime.now(),
+      imagePath: imagePath,
     );
 
     await NotesDatabase.instance.create(note);
