@@ -1,6 +1,7 @@
 import 'dart:io'; // Import Dart's IO library to handle files
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../model/note.dart';
 
 final _lightColors = [
@@ -39,8 +40,7 @@ class NoteCardWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (note.imagePath !=
-                    null) // Check if an image path is available
+                if (note.imagePath != null)
                   Center(
                     child: Image.file(
                       File(note.imagePath!),
@@ -50,7 +50,21 @@ class NoteCardWidget extends StatelessWidget {
                           .cover, // Cover the area without distorting the image
                     ),
                   ),
-                const SizedBox(height: 8), // Spacing between the image and the text
+                const SizedBox(
+                    height: 8), // Spacing between the image and the text
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: RatingBarIndicator(
+                    rating: note.rating,
+                    itemBuilder: (context, index) => Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                    ),
+                    itemCount: 5,
+                    itemSize: 20.0,
+                    direction: Axis.horizontal,
+                  ),
+                ),
                 Text(
                   time,
                   style: TextStyle(color: Colors.grey.shade700),
@@ -78,8 +92,8 @@ class NoteCardWidget extends StatelessWidget {
                 right: 8,
                 child: Icon(
                   Icons.favorite,
-                  color: Colors.red, 
-                  size: 24, 
+                  color: Colors.red,
+                  size: 24,
                 ),
               ),
           ],
